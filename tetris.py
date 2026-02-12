@@ -6,7 +6,6 @@ from random import choice
 from datetime import datetime
 from ttkbootstrap.dialogs import Messagebox
 from typing import List, Tuple, Set, Deque, Dict, Counter,Optional
-import time
 import os
 import sys
 
@@ -435,16 +434,6 @@ class Current_Shape(Shape):
         return True
 
 
-def resolution_power(resolv: int, root: tk.Window) -> None:
-    abc = Messagebox.yesno(f"调整{resolv}%分辨率后,\n要关闭再打开游戏.\n您需要这么做吗?",
-                           "连连看--by:散落于云海", False, root,
-                           padding=(150, 75), anchor='center',
-                           position=(root.winfo_x() + root.winfo_width() // 2 - 150 - 75,
-                                     root.winfo_y() + root.winfo_height() // 2 - 75 - 75 // 2))
-    if abc == NAME:
-        with open(rf"{AttrGame.LOCAL_PATH}\resolution", mode='w') as f:
-            f.write(str(resolv))
-
 
 def game_rese(game: Game) -> None:
     if not game.create_new_game:
@@ -464,26 +453,19 @@ def main(*args) -> None:
     for _ in range(2):
         _deque.append(choice(Shape.SHAPES))
     try:
-        with open(rf"{AttrGame.LOCAL_PATH}\tetris", mode='r') as f:
+        with open(os.path.join(AttrGame.LOCAL_PATH, "tetris"), "r") as f:
             AttrGame.set_box_size(int(f.read()))
     except FileNotFoundError:
         with open(rf"{AttrGame.LOCAL_PATH}\tetris", mode='w') as f:
             f.write(str(AttrGame.BOX_SIZE))
     root: tk.Window = tk.Window(args[0], themename='darkly', minsize=(300, 500))
-    try:
-        with open(rf"{AttrGame.LOCAL_PATH}\resolution", mode='r') as f:
-            ctypes.windll.shcore.SetProcessDpiAwareness(1)
-            ScaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0)
-            root.tk.call('tk', 'scaling', ScaleFactor / int(f.read()))
-    except FileNotFoundError:
-        pass
     game: Game = Game(root, title=args[0])
     try:
-        with open(rf"{AttrGame.LOCAL_PATH}\history.txt", mode='r') as f:
+        with open(os.path.join(AttrGame.LOCAL_PATH, "history.txt"), "r") as f:
             content = f.read()
             game.scored_num.configure(text=content)
     except FileNotFoundError:
-        with open(rf"{AttrGame.LOCAL_PATH}\history.txt", mode='w') as f:
+        with open(os.path.join(AttrGame.LOCAL_PATH, "history.txt"), "w") as f:
             f.write('0')
             game.scored_num.configure(text='0')
     game.pack(fill=tk.BOTH, expand=tk.YES, padx=args[1], pady=args[1])
